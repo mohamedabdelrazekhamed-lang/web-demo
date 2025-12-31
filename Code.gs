@@ -9,6 +9,12 @@ function doGet() {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
+var html = HtmlService.createHtmlOutputFromFile('Index');
+  
+  // Replace the URL below with a link to your image (must be a direct link)
+  html.setFaviconUrl("https://www.example.com/my-icon.png");
+  html.setTitle("My Web App Title");
+  
 // 2. Handle the RSVP Form Submission
 function processRSVP(formData) {
   try {
