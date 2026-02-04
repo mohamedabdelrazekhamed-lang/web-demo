@@ -3,12 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eternel Design Portal</title>
 <title>Wedding Invitation - Layla & Omar</title>
 
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
 <link rel="icon" href="https://drive.google.com/thumbnail?id=1A9ZVt5Fbh-r2aRnb79-x_6Fj10YVQ4O8&sz=s800">
 
+<!-- React -->
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://drive.google.com/thumbnail?id=13d-4zydktAozpX6j0TvD3VJnGeuF2G6o&sz=s800"></script>
 
+<!-- Babel -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wedding Invitation - Layla & Omar</title>
@@ -23,6 +31,9 @@
 --color-cream: #FDFBF7;
 }
 
+<!-- Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/lucide-react@latest"></script>
 body {
 font-family: 'Lato', sans-serif;
 overflow: hidden; /* Prevent scrolling initially */
@@ -54,6 +65,10 @@ color: var(--color-navy);
 perspective: 1200px;
 }
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 .gate {
 position: absolute;
 top: 0;
@@ -71,6 +86,12 @@ z-index: 20;
 box-shadow: inset 0 0 80px rgba(27, 38, 59, 0.5);
 }
 
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+body { font-family:'Plus Jakarta Sans', sans-serif; }
+.font-serif { font-family:'Playfair Display', serif; }
+</style>
+</head>
 /* Navy overlay on gates for elegance */
 .gate::after {
 content: '';
@@ -80,6 +101,8 @@ background: rgba(27, 38, 59, 0.3);
 transition: opacity 2s ease;
 }
 
+<body class="bg-[#fcfdfe]">
+<div id="root"></div>
 .left-gate {
 left: 0;
 transform-origin: left center;
@@ -87,6 +110,7 @@ border-right: 3px solid var(--color-gold);
 }
 html[dir="rtl"] .left-gate { transform-origin: right center; }
 
+<script type="text/babel">
 .right-gate {
 left: 50%;
 transform-origin: right center;
@@ -94,6 +118,8 @@ border-left: 3px solid var(--color-gold);
 }
 html[dir="rtl"] .right-gate { transform-origin: left center; }
 
+const { useState, useEffect } = React;
+const { User, Calendar, HardDrive, Globe, Settings, Download, CheckCircle, Link:LinkIcon } = lucideReact;
 /* Open state */
 .gate-open .left-gate { 
 transform: rotateY(-110deg) translateX(-10px); 
@@ -103,6 +129,9 @@ html[dir="rtl"] .gate-open .left-gate {
 transform: rotateY(110deg) translateX(10px); 
 }
 
+/* ================================
+   🔥 PASTE YOUR FIREBASE KEYS HERE
+================================ */
 .gate-open .right-gate { 
 transform: rotateY(110deg) translateX(10px); 
 filter: brightness(0.5);
@@ -111,11 +140,20 @@ html[dir="rtl"] .gate-open .right-gate {
 transform: rotateY(-110deg) translateX(-10px); 
 }
 
+const firebaseConfig = {
+  apiKey: "PASTE_HERE",
+  authDomain: "PASTE_HERE",
+  projectId: "PASTE_HERE",
+  storageBucket: "PASTE_HERE",
+  messagingSenderId: "PASTE_HERE",
+  appId: "PASTE_HERE"
+};
 /* Content Overlay on Gates */
 #invitation-overlay {
 transition: opacity 1.2s ease, transform 1.2s ease, filter 1.2s ease;
 }
 
+firebase.initializeApp(firebaseConfig);
 .gate-open #invitation-overlay {
 opacity: 0;
 transform: scale(0.85) translateY(-20px);
@@ -123,6 +161,9 @@ filter: blur(10px);
 pointer-events: none;
 }
 
+const auth = firebase.auth();
+const db = firebase.firestore();
+const appId = "eternel-design-portal";
 /* Page 2 (Details) Slide Up */
 #page2 {
 transform: translateY(100%);
@@ -130,10 +171,13 @@ transition: transform 1.5s cubic-bezier(0.7, 0, 0.2, 1);
 background: radial-gradient(circle at 50% 50%, #FDFBF7 0%, #f4f1ea 100%);
 }
 
+/* ================================ */
 .show-page2 #page2 {
 transform: translateY(0);
 }
 
+const AVAILABLE_LANGUAGES = ["English","Arabic","French","Italian","Spanish","German","Turkish"];
+const LOGO_URL = "https://lh3.googleusercontent.com/d/1A9ZVt5Fbh-r2aRnb79-x_6Fj10YVQ4O8";
 /* --- Scroll Reveal Animations --- */
 .reveal-on-scroll {
 opacity: 0;
@@ -141,11 +185,24 @@ transform: translateY(40px);
 transition: opacity 1s ease-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+const InputField = ({label,type="text",value,onChange}) => (
+<div className="flex flex-col gap-1">
+<label className="text-sm font-bold text-slate-600">{label}</label>
+<input
+className="px-4 py-3 border rounded-xl"
+type={type}
+value={value}
+onChange={onChange}
+required
+/>
+</div>
+);
 .reveal-on-scroll.is-visible {
 opacity: 1;
 transform: translateY(0);
 }
 
+function App(){
 /* Stagger delays for children */
 .stagger-1 { transition-delay: 100ms; }
 .stagger-2 { transition-delay: 200ms; }
@@ -163,6 +220,10 @@ z-index: 30; /* Above gates, below overlay text */
 pointer-events: none;
 }
 
+const [user,setUser] = useState(null);
+const [submitted,setSubmitted] = useState(false);
+const [submissions,setSubmissions] = useState([]);
+const [showAdmin,setShowAdmin] = useState(false);
 /* --- Custom Button --- */
 .btn-royal {
 background: linear-gradient(135deg, #1B263B 0%, #304a6e 100%);
@@ -194,6 +255,13 @@ color: white;
 border-color: white;
 }
 
+const [form,setForm] = useState({
+brideName:"",
+groomName:"",
+weddingDate:"",
+languages:["English","Arabic"],
+driveLink:""
+});
 /* --- Gallery --- */
 .gallery-item {
 overflow: hidden;
@@ -217,6 +285,10 @@ transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 transform: scale(1.15);
 }
 
+useEffect(()=>{
+auth.signInAnonymously();
+auth.onAuthStateChanged(setUser);
+},[]);
 /* Floating background decoration on Page 2 */
 .floating-deco {
 position: absolute;
@@ -233,6 +305,8 @@ pointer-events: none;
 50% { transform: translate(20px, -20px); }
 }
 
+useEffect(()=>{
+if(!user) return;
 /* Pulse for countdown */
 @keyframes pulse-soft {
 0%, 100% { transform: scale(1); opacity: 1; }
@@ -242,20 +316,42 @@ pointer-events: none;
 animation: pulse-soft 2s infinite ease-in-out;
 }
 
+const ref = db
+.collection("artifacts")
+.doc(appId)
+.collection("public")
+.doc("data")
+.collection("submissions");
 </style>
 </head>
 <body class="bg-[#FDFBF7]">
 
+return ref.onSnapshot(snap=>{
+setSubmissions(snap.docs.map(d=>({id:d.id,...d.data()})));
+});
+},[user]);
 <!-- Page 1: The Gates (Entry) -->
 <div id="page1" class="relative h-screen w-screen overflow-hidden bg-[#1B263B]">
 
+async function submit(e){
+e.preventDefault();
 <!-- The Moving Gates -->
 <div class="left-gate gate"></div>
 <div class="right-gate gate"></div>
 
+const ref = db
+.collection("artifacts")
+.doc(appId)
+.collection("public")
+.doc("data")
+.collection("submissions");
 <!-- Particle Canvas (Gold Dust) -->
 <canvas id="particles-canvas"></canvas>
 
+await ref.add({
+...form,
+created: firebase.firestore.FieldValue.serverTimestamp()
+});
 <!-- Top Controls (Language & Audio) -->
 <div class="absolute top-6 right-6 z-50 flex items-center gap-3">
 <button id="lang-toggle-btn" class="bg-[#1B263B]/80 backdrop-blur border border-gold/50 text-gold text-xs font-cinzel tracking-widest py-1.5 px-4 rounded hover:bg-gold hover:text-[#1B263B] transition-colors duration-300">
@@ -275,27 +371,65 @@ animation: pulse-soft 2s infinite ease-in-out;
 <h1 class="font-dancing-script text-6xl md:text-8xl text-gold drop-shadow-lg mb-4" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">Layla <span class="text-white text-4xl">&</span> Omar</h1>
 <p class="font-playfair text-gray-200 text-lg md:text-xl italic mb-10 tracking-wide">October 25th, 2026</p>
 
+setSubmitted(true);
+}
+
+function exportCSV(){
+let rows = submissions.map(s =>
+`${s.brideName},${s.groomName},${s.weddingDate}`
+);
+let csv = "Bride,Groom,Date\n"+rows.join("\n");
+let blob = new Blob([csv]);
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="eternel.csv";
+a.click();
+}
+
+if(submitted){
+return(
+<div className="min-h-screen flex items-center justify-center">
+<div className="bg-white p-10 rounded-3xl text-center shadow">
+<CheckCircle size={60} className="mx-auto text-rose-500"/>
+<h2 className="text-3xl font-serif mt-4">Submitted</h2>
+<button onClick={()=>setSubmitted(false)}
+className="mt-6 bg-black text-white px-6 py-3 rounded-xl">
+Add Another
 <button id="join-us-btn" class="btn-royal font-cinzel font-bold py-3 px-10 text-sm tracking-[0.2em] uppercase rounded-sm cursor-pointer">
 <span data-lang-key="enterButton">Enter</span>
 </button>
 </div>
 </div>
+);
+}
 </div>
 
+return(
+<div>
 <!-- Page 2: The Details (Scrollable Content) -->
 <div id="page2" class="absolute inset-0 z-30 h-screen w-screen bg-[#FDFBF7] overflow-y-auto overflow-x-hidden scroll-smooth">
 
+<nav className="flex justify-between items-center p-6 bg-white shadow">
+<div className="flex items-center gap-3">
+<img src={LOGO_URL} className="h-10"/>
+<h1 className="font-serif text-2xl">ETERNEL</h1>
+</div>
 <!-- Floating Decor Background -->
 <div class="floating-deco" style="top: 10%; left: -5%;"></div>
 <div class="floating-deco" style="bottom: 10%; right: -5%; animation-delay: -5s;"></div>
 
+<button onClick={()=>setShowAdmin(!showAdmin)}>
+<Settings/>
 <!-- Back Button -->
 <button id="back-btn" class="fixed top-6 left-6 z-50 bg-white/90 backdrop-blur text-[#1B263B] py-2 px-4 rounded-sm shadow-md font-cinzel text-xs tracking-wider border border-[#1B263B]/10 hover:bg-[#1B263B] hover:text-white transition-all duration-300 hover:shadow-lg transform hover:-translate-x-1">
 <span data-lang-key="backButton">← Back</span>
 </button>
+</nav>
 
+<main className="max-w-xl mx-auto p-6">
 <div class="max-w-5xl mx-auto text-center px-4 py-20 relative z-10">
 
+{!showAdmin && (
 <!-- Header Section -->
 <div class="reveal-on-scroll">
 <p class="font-cinzel text-gold text-xs md:text-sm tracking-[0.3em] uppercase mb-4" data-lang-key="saveTheDate">Save The Date</p>
@@ -304,43 +438,57 @@ animation: pulse-soft 2s infinite ease-in-out;
 <p class="font-playfair text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed mb-12" data-lang-key="detailsSubtitle">We look forward to sharing this joyous occasion with you.</p>
 </div>
 
+<form onSubmit={submit} className="space-y-6">
 <!-- Countdown (High Priority) -->
 <div id="countdown" class="flex flex-wrap justify-center gap-4 md:gap-6 mb-20 reveal-on-scroll stagger-1">
 <!-- JS injected here -->
 </div>
 
+<InputField label="Bride Name"
+value={form.brideName}
+onChange={e=>setForm({...form,brideName:e.target.value})}/>
 <!-- Photo Gallery -->
 <div class="mb-20">
 <h3 class="font-cinzel text-2xl text-[#1B263B] mb-8 tracking-widest uppercase reveal-on-scroll" data-lang-key="galleryTitle">Our Moments</h3>
 
+<InputField label="Groom Name"
+value={form.groomName}
+onChange={e=>setForm({...form,groomName:e.target.value})}/>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3 h-[500px] md:h-[400px]">
 <!-- Large featured image -->
 <div class="gallery-item col-span-2 row-span-2 md:col-span-2 md:row-span-2 group reveal-on-scroll stagger-1">
-<img src="https://drive.google.com/file/d/1bqspfFP_3vq45MbMNxwv69AmZLBGE9Ke&sz=s800" alt="Couple" loading="lazy">
+<img src="https://drive.google.com/thumbnail?id=1bqspfFP_3vq45MbMNxwv69AmZLBGE9Ke&sz=s800" alt="Couple" loading="lazy">
 <div class="absolute inset-0 bg-gradient-to-t from-[#1B263B]/60 to-transparent opacity-100 group-hover:opacity-40 transition-opacity duration-500"></div>
 <div class="absolute bottom-4 left-4 text-white font-playfair italic text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-y-2 group-hover:translate-y-0">Just said yes!</div>
 </div>
 <!-- Smaller images -->
 <div class="gallery-item col-span-1 row-span-1 reveal-on-scroll stagger-2">
-<img src="https://drive.google.com/file/d/1-VemOKAkBZF70mB3OrzJjd4iPHVBmLMa&sz=s800" alt="Ring" loading="lazy">
+<img src="https://drive.google.com/thumbnail?id=1M-Rt0OrakrRXmnGfySTD1-9Vvr6FnY4R&sz=s800" alt="Ring" loading="lazy">
 </div>
 <div class="gallery-item col-span-1 row-span-1 reveal-on-scroll stagger-3">
-<img src="https://drive.google.com/file/d/19WpWLEEqiHLm7vmp-K1A4iloPfxVyoe6&sz=s800" alt="Hands" alt="Flower Details" loading="lazy">
+<img src="https://drive.google.com/thumbnail?id=1biU54pkuKPeC8l1cQk9mEmwFNJa6ZPTZ&sz=s800" alt="Hands" alt="Flower Details" loading="lazy">
 </div>
 <div class="gallery-item col-span-1 row-span-1 reveal-on-scroll stagger-2">
-<img src="https://drive.google.com/file/d/1biU54pkuKPeC8l1cQk9mEmwFNJa6ZPTZ&sz=s800" alt="Venue" loading="lazy">
+<img src="https://drive.google.com/thumbnail?id=1zDoyNwlDgE_f1imqhR6d-vNHl0lohPCX&sz=s800" alt="Venue" loading="lazy">
 </div>
 <div class="gallery-item col-span-1 row-span-1 reveal-on-scroll stagger-3">
-<img src="https://drive.google.com/file/d/1Z29CWSAkCVewxgfPl0dY19IvXXrtrzT7&sz=s800" alt="Hands" loading="lazy">
+<img src="https://drive.google.com/thumbnail?id=1-VemOKAkBZF70mB3OrzJjd4iPHVBmLMa&sz=s800" alt="Hands" loading="lazy">
 </div>
 </div>
 
+<InputField label="Wedding Date"
+type="date"
+value={form.weddingDate}
+onChange={e=>setForm({...form,weddingDate:e.target.value})}/>
 <div class="mt-6 reveal-on-scroll">
 <!-- PUT YOUR GOOGLE DRIVE/ALBUM LINK BELOW inside the href="" -->
 <a href="https://drive.google.com/drive/u/1/folders/1hXOaAvBWG_tKfdmvJCgNv4lsxZTrcMrI" target="_blank" class="inline-block text-gold border-b border-gold/50 pb-1 hover:text-[#1B263B] hover:border-[#1B263B] transition-all duration-300 font-cinzel text-xs tracking-wider uppercase transform hover:scale-105" data-lang-key="viewFullGallery">View Full Album</a>
 </div>
 </div>
 
+<InputField label="Google Drive Link"
+value={form.driveLink}
+onChange={e=>setForm({...form,driveLink:e.target.value})}/>
 <!-- Events Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 text-left rtl:text-right px-4">
 <!-- Katb Ktab -->
@@ -360,6 +508,27 @@ animation: pulse-soft 2s infinite ease-in-out;
 </div>
 </div>
 
+<div>
+<p className="font-bold mb-2">Languages</p>
+<div className="flex flex-wrap gap-2">
+{AVAILABLE_LANGUAGES.map(l=>(
+<button
+type="button"
+key={l}
+onClick={()=>setForm(f=>({
+...f,
+languages: f.languages.includes(l)
+? f.languages.filter(x=>x!==l)
+: [...f.languages,l]
+}))}
+className={`px-3 py-1 rounded-xl border
+${form.languages.includes(l)
+?"bg-black text-white"
+:"bg-white"}`}
+>
+{l}
+</button>
+))}
 <!-- Celebration -->
 <div class="bg-white p-8 shadow-xl border-t-4 border-gold reveal-on-scroll stagger-2 transform hover:-translate-y-2 hover:shadow-2xl transition-all duration-500 rounded-sm">
 <div class="flex items-center gap-4 mb-6">
@@ -378,23 +547,41 @@ animation: pulse-soft 2s infinite ease-in-out;
 </div>
 </div>
 
+<button className="w-full bg-black text-white py-4 rounded-xl">
+Submit
+</button>
 <!-- RSVP Section -->
 <div class="bg-[#1B263B] text-white p-8 md:p-12 shadow-2xl reveal-on-scroll relative overflow-hidden rounded-sm group">
 <!-- Animated Background Circle -->
 <div class="absolute -top-10 -right-10 w-40 h-40 border border-white/5 rounded-full transition-transform duration-1000 group-hover:scale-150"></div>
 <div class="absolute -bottom-10 -left-10 w-60 h-60 border border-white/5 rounded-full transition-transform duration-1000 group-hover:scale-110"></div>
 
+</form>
+)}
 <div class="relative z-10 max-w-xl mx-auto">
 <h3 class="font-cinzel text-3xl mb-2 text-gold" data-lang-key="rsvpTitle">RSVP</h3>
 <p class="font-playfair italic text-gray-400 mb-8" data-lang-key="rsvpSubtitle">Kindly respond by September 1st</p>
 
+{showAdmin && (
+<div>
+<div className="flex justify-between mb-4">
+<h2 className="text-2xl font-serif">Dashboard</h2>
+<button onClick={exportCSV}
+className="bg-black text-white px-4 py-2 rounded">
+<Download size={16}/> CSV
+</button>
 <form id="rsvp-form" class="text-left rtl:text-right space-y-6">
 <div class="group/input">
 <label for="name" class="block text-gold text-xs tracking-widest uppercase mb-2 group-focus-within/input:text-white transition-colors" data-lang-key="rsvpName">Full Name</label>
 <input type="text" id="name" name="name" class="w-full bg-white/5 border border-white/20 text-white px-4 py-3 focus:outline-none focus:border-gold focus:bg-white/10 transition-all duration-300" required>
 </div>
 
+{submissions.map(s=>(
+<div key={s.id}
+className="bg-white p-4 mb-3 rounded-xl shadow flex justify-between">
 <div>
+<p className="font-bold">{s.brideName} & {s.groomName}</p>
+<p className="text-sm">{s.weddingDate}</p>
 <span class="block text-gold text-xs tracking-widest uppercase mb-4" data-lang-key="rsvpAttend">Attendance</span>
 <div class="space-y-3">
 <label class="flex items-center cursor-pointer group p-2 hover:bg-white/5 rounded transition-colors">
@@ -426,6 +613,10 @@ animation: pulse-soft 2s infinite ease-in-out;
 <option value="5" class="bg-[#1B263B] text-white">5 (+4 Guests)</option>
 </select>
 </div>
+{s.driveLink &&
+<a href={s.driveLink} target="_blank">
+<LinkIcon/>
+</a>}
 
 <button type="submit" id="rsvp-submit-btn" class="w-full bg-gold text-[#1B263B] font-bold py-3 px-6 uppercase tracking-widest hover:bg-white hover:shadow-lg transition-all duration-300 shadow-lg mt-4 disabled:bg-gray-500 disabled:cursor-not-allowed text-sm transform active:scale-95">
 <span data-lang-key="rsvpSubmit">Confirm Attendance</span>
@@ -433,8 +624,11 @@ animation: pulse-soft 2s infinite ease-in-out;
 </form>
 <div id="rsvp-message" class="mt-6 text-center font-playfair italic min-h-[20px]"></div>
 </div>
+))}
 </div>
+)}
 
+</main>
 <footer class="mt-20 pb-8 text-[#1B263B]/50 font-cinzel text-xs tracking-widest reveal-on-scroll">
                 <p data-lang-key="footer">With Love | Layla & Omar
                 E T E R N E L . E G © 2026. All Rights Reserved.</p>
@@ -442,6 +636,7 @@ animation: pulse-soft 2s infinite ease-in-out;
                 <span class="eternel-copyright">E T E R N E L . E G &copy; 2026. All Rights Reserved.</span>
 </footer>
 </div>
+);
 </div>
 
 <audio id="background-music" loop>
@@ -660,6 +855,7 @@ el.style.opacity = '1';
 }
 });
 
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 if (lang === 'ar') {
 document.documentElement.setAttribute('dir', 'rtl');
 document.documentElement.setAttribute('lang', 'ar');
