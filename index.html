@@ -62,31 +62,46 @@
         .door {
             position: absolute;
             top: 0;
-            width: 50%;
+            width: 50.2%; /* Increased slightly from 50% to overlap and ensure it looks fully closed */
             height: 100%;
-            background-image: url('https://drive.google.com/thumbnail?id=1rSAnt_WFYN9pMSTOR7ZGXs1iQDaML9-O&sz=w1920');
-            /* Use viewport units for size to ensure perfect stitching of the two halves */
-            background-size: 100vw 100vh;
-            background-repeat: no-repeat;
+            overflow: hidden; /* Hide the overflow of the inner stretched image */
             transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-style: preserve-3d;
             z-index: 10;
         }
 
+        /* Inner Image Container for Dynamic Ratio (Cover) */
+        .door-inner {
+            position: absolute;
+            top: 0;
+            width: 200%; /* Relative to the door width (~100vw) */
+            height: 100%;
+            background-image: url('https://drive.google.com/thumbnail?id=1rSAnt_WFYN9pMSTOR7ZGXs1iQDaML9-O&sz=w1920');
+            background-size: cover; /* This makes the ratio dynamic/responsive */
+            background-position: center; /* Centers the image */
+            pointer-events: none;
+        }
+
         /* Left Door */
         .door-left {
             left: 0;
-            background-position: 0% center; /* Left half of image */
             transform-origin: left center;
-            border-right: 1px solid rgba(0,0,0,0.1);
+            /* Border removed to prevent "gap" look */
+        }
+
+        .door-left .door-inner {
+            left: 0;
         }
 
         /* Right Door */
         .door-right {
             right: 0;
-            background-position: 100% center; /* Right half of image */
             transform-origin: right center;
-            border-left: 1px solid rgba(0,0,0,0.1);
+            /* Border removed to prevent "gap" look */
+        }
+
+        .door-right .door-inner {
+            left: -100%; /* Pull the image back to align with the viewport */
         }
 
         /* Dark overlay on doors (moves with them) */
@@ -95,6 +110,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.2); 
+            z-index: 2; /* Sit on top of .door-inner */
         }
 
         /* Open State */
@@ -256,8 +272,12 @@
     <!-- Page 1: The Doors (Entry) -->
     <div id="page1">
         <!-- Two Doors mimicking the single background image -->
-        <div class="door door-left"></div>
-        <div class="door door-right"></div>
+        <div class="door door-left">
+            <div class="door-inner"></div>
+        </div>
+        <div class="door door-right">
+            <div class="door-inner"></div>
+        </div>
         
         <!-- Particle Canvas (Gold Dust) -->
         <canvas id="particles-canvas"></canvas>
@@ -267,7 +287,7 @@
             <button id="lang-toggle-btn" class="bg-[#1B263B]/80 backdrop-blur border border-gold/50 text-gold text-xs font-cinzel tracking-widest py-1.5 px-4 rounded hover:bg-gold hover:text-[#1B263B] transition-colors duration-300">
                 العربية
             </button>
-            <button id="audio-control" class="bg-[#02203b]/80 backdrop-blur border border-gold/50 text-gold p-2 rounded-full hover:bg-gold hover:text-[#1B263B] transition-colors duration-300 group">
+            <button id="audio-control" class="bg-[#1B263B]/80 backdrop-blur border border-gold/50 text-gold p-2 rounded-full hover:bg-gold hover:text-[#1B263B] transition-colors duration-300 group">
                 <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 </svg>
@@ -275,7 +295,7 @@
         </div>
 
         <!-- Center Overlay - Button Only (Fades out when doors open) -->
-        <div id="invitation-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-end pb-40 :justify-center md:pb-20 text-center p-6">
+        <div id="invitation-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-end pb-32 md:justify-center md:pb-10 text-center p-6">
             <!-- No Text, Just Button -->
             <button id="join-us-btn" class="btn-royal font-cinzel font-bold py-3 px-10 text-sm tracking-[0.2em] uppercase rounded-sm cursor-pointer transform hover:scale-105 transition-transform duration-300">
                 <span data-lang-key="enterButton">Enter</span>
