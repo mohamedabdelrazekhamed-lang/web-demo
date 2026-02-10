@@ -40,46 +40,94 @@
         .bg-gold { background-color: var(--color-gold); }
         .border-gold { border-color: var(--color-gold); }
 
-        /* --- Page 1 (Entry) Styles --- */
+        /* --- Page 1 (Entry) - Door Animation Styles --- */
         #page1 {
-            /* Set the user provided image as the background */
-            background-image: url('https://drive.google.com/thumbnail?id=1rSAnt_WFYN9pMSTOR7ZGXs1iQDaML9-O&sz=w1920');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 20;
-            transition: transform 1.5s cubic-bezier(0.7, 0, 0.2, 1);
+            z-index: 50; /* Above Page 2 */
+            perspective: 1500px; /* Essential for 3D door effect */
+            overflow: hidden;
+            pointer-events: auto;
+            transition: pointer-events 0s linear 1.5s; /* Disable clicks after animation */
         }
         
-        /* Dark overlay to make buttons pop against the image */
-        #page1::after {
+        .show-page2 #page1 {
+            pointer-events: none;
+        }
+
+        /* Door Container Styles */
+        .door {
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background-image: url('https://drive.google.com/thumbnail?id=1rSAnt_WFYN9pMSTOR7ZGXs1iQDaML9-O&sz=w1920');
+            /* Use viewport units for size to ensure perfect stitching of the two halves */
+            background-size: 100vw 100vh;
+            background-repeat: no-repeat;
+            transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+            z-index: 10;
+        }
+
+        /* Left Door */
+        .door-left {
+            left: 0;
+            background-position: 0% center; /* Left half of image */
+            transform-origin: left center;
+            border-right: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Right Door */
+        .door-right {
+            right: 0;
+            background-position: 100% center; /* Right half of image */
+            transform-origin: right center;
+            border-left: 1px solid rgba(0,0,0,0.1);
+        }
+
+        /* Dark overlay on doors (moves with them) */
+        .door::after {
             content: '';
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.2); 
-            z-index: 1;
         }
 
-        /* When 'Enter' is clicked, slide Page 1 up or hide it */
-        .show-page2 #page1 {
-            transform: translateY(-100%);
+        /* Open State */
+        .show-page2 .door-left {
+            transform: rotateY(-110deg);
+        }
+        .show-page2 .door-right {
+            transform: rotateY(110deg);
         }
 
-        /* --- Page 2 (Details) Slide Up --- */
+        /* Overlay Content (Button) Fade Out */
+        #invitation-overlay {
+            transition: opacity 1s ease 0.2s;
+            opacity: 1;
+        }
+        .show-page2 #invitation-overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- Page 2 (Details) --- */
         #page2 {
-            transform: translateY(100%);
-            transition: transform 1.5s cubic-bezier(0.7, 0, 0.2, 1);
+            position: absolute;
+            inset: 0;
+            z-index: 20; /* Behind Page 1 */
             background: radial-gradient(circle at 50% 50%, #FDFBF7 0%, #f4f1ea 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-smooth: true;
+            opacity: 1; /* Always visible underneath */
         }
-
-        .show-page2 #page2 {
-            transform: translateY(0);
-        }
+        
+        /* Note: Removed slide-up transform since we are revealing it */
 
         /* --- Scroll Reveal Animations --- */
         .reveal-on-scroll {
@@ -104,8 +152,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 30; 
+            z-index: 60; /* Topmost, even above doors */
             pointer-events: none;
+        }
+        .show-page2 #particles-canvas {
+            opacity: 0;
+            transition: opacity 1s;
         }
 
         /* --- Custom Button --- */
@@ -116,7 +168,7 @@
             position: relative;
             overflow: hidden;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 50; /* Ensure high z-index to sit on top of image */
+            z-index: 50; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .btn-royal::before {
@@ -201,10 +253,13 @@
 </head>
 <body class="bg-[#FDFBF7]">
 
-    <!-- Page 1: The Image Entry -->
+    <!-- Page 1: The Doors (Entry) -->
     <div id="page1">
+        <!-- Two Doors mimicking the single background image -->
+        <div class="door door-left"></div>
+        <div class="door door-right"></div>
         
-        <!-- Particle Canvas (Gold Dust - kept for effect) -->
+        <!-- Particle Canvas (Gold Dust) -->
         <canvas id="particles-canvas"></canvas>
 
         <!-- Top Controls (Language & Audio) -->
@@ -212,15 +267,15 @@
             <button id="lang-toggle-btn" class="bg-[#1B263B]/80 backdrop-blur border border-gold/50 text-gold text-xs font-cinzel tracking-widest py-1.5 px-4 rounded hover:bg-gold hover:text-[#1B263B] transition-colors duration-300">
                 العربية
             </button>
-            <button id="audio-control" class="bg-[#1B263B]/80 backdrop-blur border border-gold/50 text-gold p-2 rounded-full hover:bg-gold hover:text-[#1B263B] transition-colors duration-300 group">
+            <button id="audio-control" class="bg-[#02203b]/80 backdrop-blur border border-gold/50 text-gold p-2 rounded-full hover:bg-gold hover:text-[#1B263B] transition-colors duration-300 group">
                 <svg id="speaker-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                 </svg>
             </button>
         </div>
 
-        <!-- Center Overlay - Button Only -->
-        <div id="invitation-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-end pb-32 md:justify-center md:pb-0 text-center p-6">
+        <!-- Center Overlay - Button Only (Fades out when doors open) -->
+        <div id="invitation-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-end pb-40 :justify-center md:pb-20 text-center p-6">
             <!-- No Text, Just Button -->
             <button id="join-us-btn" class="btn-royal font-cinzel font-bold py-3 px-10 text-sm tracking-[0.2em] uppercase rounded-sm cursor-pointer transform hover:scale-105 transition-transform duration-300">
                 <span data-lang-key="enterButton">Enter</span>
@@ -229,7 +284,7 @@
     </div>
 
     <!-- Page 2: The Details (Scrollable Content) -->
-    <div id="page2" class="absolute inset-0 z-30 h-screen w-screen bg-[#FDFBF7] overflow-y-auto overflow-x-hidden scroll-smooth">
+    <div id="page2">
 
         <!-- Floating Decor Background -->
         <div class="floating-deco" style="top: 10%; left: -5%;"></div>
@@ -495,6 +550,7 @@
                     bgMusic.play().catch(e => console.log("Auto-play prevented"));
                 }
                 
+                // Allow interactions with page 2 after animation
                 setTimeout(() => {
                     document.getElementById('page2').style.overflow = 'auto';
                 }, 1000);
