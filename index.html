@@ -30,6 +30,36 @@
             color: var(--color-navy);
         }
 
+        /* --- PRELOADER --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-navy);
+            z-index: 100; /* Highest priority */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-gold);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* --- Typography Classes --- */
         .font-playfair { font-family: 'Playfair Display', serif; }
         .font-cinzel { font-family: 'Cinzel', serif; }
@@ -62,12 +92,13 @@
         .door {
             position: absolute;
             top: 0;
-            width: 50.2%; /* Increased slightly from 50% to overlap and ensure it looks fully closed */
+            width: 50.2%; /* Slight overlap to prevent gaps */
             height: 100%;
-            overflow: hidden; /* Hide the overflow of the inner stretched image */
-            transition: transform 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            overflow: hidden; 
+            transition: transform 2.5s cubic-bezier(0.4, 0.0, 0.2, 1);
             transform-style: preserve-3d;
             z-index: 10;
+            background-color: var(--color-navy); /* Fallback color if image fails */
         }
 
         /* Inner Image Container for Dynamic Ratio (Cover) */
@@ -76,9 +107,11 @@
             top: 0;
             width: 200%; /* Relative to the door width (~100vw) */
             height: 100%;
+            /* Added background color so it's not transparent while loading */
+            background-color: var(--color-navy); 
             background-image: url('https://drive.google.com/thumbnail?id=1rSAnt_WFYN9pMSTOR7ZGXs1iQDaML9-O&sz=w1920');
-            background-size: cover; /* This makes the ratio dynamic/responsive */
-            background-position: center; /* Centers the image */
+            background-size: cover; 
+            background-position: center; 
             pointer-events: none;
         }
 
@@ -86,9 +119,7 @@
         .door-left {
             left: 0;
             transform-origin: left center;
-            /* Border removed to prevent "gap" look */
         }
-
         .door-left .door-inner {
             left: 0;
         }
@@ -97,11 +128,9 @@
         .door-right {
             right: 0;
             transform-origin: right center;
-            /* Border removed to prevent "gap" look */
         }
-
         .door-right .door-inner {
-            left: -100%; /* Pull the image back to align with the viewport */
+            left: -100%; 
         }
 
         /* Dark overlay on doors (moves with them) */
@@ -110,7 +139,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.2); 
-            z-index: 2; /* Sit on top of .door-inner */
+            z-index: 2; 
         }
 
         /* Open State */
@@ -140,10 +169,16 @@
             overflow-y: auto;
             overflow-x: hidden;
             scroll-smooth: true;
-            opacity: 1; /* Always visible underneath */
+            /* CRITICAL FIX: Hide Page 2 initially so it never shows before Page 1 loads */
+            visibility: hidden; 
+            opacity: 0;
+            transition: opacity 1s ease-in;
         }
         
-        /* Note: Removed slide-up transform since we are revealing it */
+        .show-page2 #page2 {
+            visibility: visible;
+            opacity: 1;
+        }
 
         /* --- Scroll Reveal Animations --- */
         .reveal-on-scroll {
@@ -178,7 +213,7 @@
 
         /* --- Custom Button --- */
         .btn-royal {
-            background: linear-gradient(135deg, #0b1324 0%, #19365e 100%);
+            background: linear-gradient(135deg, #1B263B 0%, #304a6e 100%);
             color: #D4AF37;
             border: 1px solid #D4AF37;
             position: relative;
@@ -269,6 +304,12 @@
 </head>
 <body class="bg-[#FDFBF7]">
 
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <div class="loader-spinner"></div>
+        <div class="font-cinzel text-gold text-xs tracking-widest uppercase">Loading Invitation...</div>
+    </div>
+
     <!-- Page 1: The Doors (Entry) -->
     <div id="page1">
         <!-- Two Doors mimicking the single background image -->
@@ -295,7 +336,10 @@
         </div>
 
         <!-- Center Overlay - Button Only (Fades out when doors open) -->
-        <div id="invitation-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-end pb-40 md:justify-center md:pb-10 text-center p-6">
+        <!-- Adjusted padding: pb-32 for mobile, pb-10 for desktop -->
+        <div id="invitation-overlay" class="absolute left-1/2 top-2/3 -translate-x-1/2 z-50 flex flex-col items-center text-center p-6">
+
+
             <!-- No Text, Just Button -->
             <button id="join-us-btn" class="btn-royal font-cinzel font-bold py-3 px-10 text-sm tracking-[0.2em] uppercase rounded-sm cursor-pointer transform hover:scale-105 transition-transform duration-300">
                 <span data-lang-key="enterButton">Enter</span>
@@ -469,6 +513,17 @@
     </audio>
 
     <script>
+        // --- PRELOADER LOGIC ---
+        // Wait for everything (images, css, etc.) to load
+        window.onload = function() {
+            const preloader = document.getElementById('preloader');
+            // Slight timeout to ensure smooth transition
+            setTimeout(() => {
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+            }, 500);
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             const joinUsBtn = document.getElementById('join-us-btn');
             const backBtn = document.getElementById('back-btn');
@@ -563,6 +618,7 @@
 
             // --- Navigation Animations ---
             joinUsBtn.addEventListener('click', () => {
+                // Ensure page 2 is visible before animation starts
                 body.classList.add('show-page2');
                 
                 // Try playing music on entry
